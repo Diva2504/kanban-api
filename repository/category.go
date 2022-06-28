@@ -20,8 +20,18 @@ func GetAllCategories(db *gorm.DB) ([]models.Category, error) {
 		}
 	}
 }
+func GetCategoryById(db *gorm.DB, id int) (models.Category, error) {
+	var category models.Category
 
-func CreateCategory(data *models.Category, db *gorm.DB) error {
+	err := db.Debug().First(&category, id).Error
+
+	if err != nil {
+		return category, err
+	}
+	return category, nil
+}
+
+func CreateCategory(data models.Category, db *gorm.DB) error {
 
 	err := db.Debug().Create(&data).Error
 
@@ -43,13 +53,16 @@ func DeleteCategory(id int, db *gorm.DB) error {
 	}
 }
 
-func UpdateCategory(id int, input *models.Category, db *gorm.DB) (models.Category, error) {
+func UpdateCategory(id int, input models.Category, db *gorm.DB) (models.Category, error) {
 	var category models.Category
-	err := db.Model(&category).Where("id = ?", id).Updates(&input).Error
 
+	err := db.Preload("Task").First(&category, id).Error
 	if err != nil {
 		return models.Category{}, err
-	} else {
-		return category, err
 	}
+	err = db.Model(&category).Updates(&input).Error
+	if err != nil {
+		return models.Category{}, err
+	}
+	return category, nil
 }

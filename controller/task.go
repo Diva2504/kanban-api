@@ -9,6 +9,13 @@ import (
 	"github.com/takadev15/kanban-api/repository"
 )
 
+type InputTask struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Status      bool   `json:"status"`
+	CategoryId  uint   `json:"category_id"`
+}
+
 func (db Handlers) GetAllTask(c *gin.Context) {
 	res, err := repository.GetAllTask(db.Connect)
 	var result gin.H
@@ -32,7 +39,7 @@ func (db Handlers) CreateTask(c *gin.Context) {
 	if err := c.ShouldBindJSON(&task); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 	}
-	err := repository.CreateTask(&task, db.Connect)
+	err := repository.CreateTask(task, db.Connect)
 	if err != nil {
 		result = gin.H{
 			"message": err,
@@ -53,14 +60,20 @@ func (db Handlers) CreateTask(c *gin.Context) {
 
 func (db Handlers) UpdateTask(c *gin.Context) {
 	var (
-		task   models.Task
-		result gin.H
+		reqTask InputTask
+		result  gin.H
 	)
-	if err := c.ShouldBindJSON(&task); err != nil {
+	if err := c.ShouldBindJSON(&reqTask); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 	}
+	task := models.Task{
+		Title:       reqTask.Title,
+		Description: reqTask.Description,
+	}
+	//task.Description = reqTask.Description
+
 	taskId, _ := strconv.Atoi(c.Param("id"))
-	_, err := repository.UpdateTask(taskId, &task, db.Connect)
+	_, err := repository.UpdateTask(taskId, task, db.Connect)
 	if err != nil {
 		result = gin.H{
 			"message": err,
@@ -85,4 +98,59 @@ func (db Handlers) DeleteTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "task has been succesfully deleted",
 	})
+}
+
+func (db Handlers) UpdateStatusTask(c *gin.Context) {
+	var (
+		reqTask InputTask
+		result  gin.H
+	)
+	if err := c.ShouldBindJSON(&reqTask); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+	}
+	task := models.Task{
+		Status: reqTask.Status,
+	}
+	//task.Description = reqTask.Description
+
+	taskId, _ := strconv.Atoi(c.Param("id"))
+	_, err := repository.UpdateTask(taskId, task, db.Connect)
+	if err != nil {
+		result = gin.H{
+			"message": err,
+		}
+		c.AbortWithStatusJSON(http.StatusInternalServerError, result)
+	}
+	result = gin.H{
+		"data": task,
+	}
+	c.JSON(http.StatusCreated, result)
+}
+
+func (db Handlers) UpdateCategoryTask(c *gin.Context) {
+	var (
+		reqTask InputTask
+		result  gin.H
+	)
+	if err := c.ShouldBindJSON(&reqTask); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+	}
+
+	taskId, _ := strconv.Atoi(c.Param("id"))
+	categoryId := reqTask.CategoryId
+	category, err := repository.GetCategoryById(db.Connect, int(categoryId))
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+	}
+	err = repository.UpdateCategoryTask(db.Connect, taskId, category.ID)
+	if err != nil {
+		result = gin.H{
+			"message": err,
+		}
+		c.AbortWithStatusJSON(http.StatusInternalServerError, result)
+	}
+	result = gin.H{
+		"message": "Update success",
+	}
+	c.JSON(http.StatusCreated, result)
 }

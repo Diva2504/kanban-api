@@ -21,7 +21,7 @@ func GetAllTask(db *gorm.DB) ([]models.Task, error) {
 	}
 }
 
-func CreateTask(data *models.Task, db *gorm.DB) error {
+func CreateTask(data models.Task, db *gorm.DB) error {
 	err := db.Create(&data).Error
 	if err != nil {
 		return err
@@ -30,7 +30,7 @@ func CreateTask(data *models.Task, db *gorm.DB) error {
 
 }
 
-func UpdateTask(id int, data *models.Task, db *gorm.DB) (models.Task, error) {
+func UpdateTask(id int, data models.Task, db *gorm.DB) (models.Task, error) {
 	var task models.Task
 	err := db.Model(&task).Where("id = ?", id).Updates(&data).Error
 	if err != nil {
@@ -49,4 +49,10 @@ func DeleteTask(id int, db *gorm.DB) error {
 	} else {
 		return nil
 	}
+}
+
+func UpdateCategoryTask(db *gorm.DB, id int, categoryId uint) error {
+	var task models.Task
+	err := db.Model(&task).Where("id = ?", id).Updates(models.Task{CategoryId: categoryId}).Error
+	return err
 }

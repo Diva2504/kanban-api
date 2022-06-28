@@ -43,7 +43,7 @@ func (db Handlers) CreateCategory(c *gin.Context) {
 	if err := c.ShouldBindJSON(&category); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 	}
-	err := repository.CreateCategory(&category, db.Connect)
+	err := repository.CreateCategory(category, db.Connect)
 	if err != nil {
 		result = gin.H{
 			"message": err,
@@ -67,7 +67,7 @@ func (db Handlers) UpdateCategory(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 	}
 	categoryId, _ := strconv.Atoi(c.Param("id"))
-	_, err := repository.UpdateCategory(categoryId, &category, db.Connect)
+	_, err := repository.UpdateCategory(categoryId, category, db.Connect)
 	if err != nil {
 		result = gin.H{
 			"message": err,

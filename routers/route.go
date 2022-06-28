@@ -24,8 +24,8 @@ func RoutesList() *gin.Engine {
 		taskRoutes.POST("/")
 		taskRoutes.PUT("/:id")
 		taskRoutes.PATCH("/:id")
-		taskRoutes.PATCH("/update-category/:id")
+		taskRoutes.PATCH("/:id/category")
 		taskRoutes.DELETE("/:id")
 	}
-	return nil
+	return r
 }
