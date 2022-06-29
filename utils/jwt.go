@@ -8,7 +8,7 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-var secret = "abcd"
+var secret = "abcdefghijklmnopqrstu"
 
 // Generate Json Web Token
 func VerifyToken(c *gin.Context) (interface{}, error) {

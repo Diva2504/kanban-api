@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/takadev15/kanban-api/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -25,7 +26,7 @@ func InitDB() {
 		log.Panic("Databases Error", err.Error())
 	}
 	log.Printf("Databases Connected")
-	// db.Debug().AutoMigrate(models.User{}, models.Product{}, models.TransactionHistory{}, models.Category{})
+	db.Debug().AutoMigrate(models.User{}, models.Task{}, models.Category{})
 }
 
 func GetDB() *gorm.DB {

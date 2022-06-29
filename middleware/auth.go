@@ -6,6 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"github.com/takadev15/kanban-api/config"
+	"github.com/takadev15/kanban-api/models"
 	"github.com/takadev15/kanban-api/utils"
 )
 
@@ -39,6 +41,31 @@ func Authentication() gin.HandlerFunc {
     c.Set("id", data["id"])
     c.Set("email", data["email"])
     c.Set("user_data", verifiedToken)
+    c.Next()
+  }
+}
+
+func AdminAuth() gin.HandlerFunc {
+  return func(c *gin.Context) {
+    var data models.User
+    db := config.GetDB()
+    userData := c.MustGet("user_data").(jwt.MapClaims)
+    userId := int(userData["id"].(float64))
+    err := db.Select("role").First(&data, int(userId)).Error
+    if err != nil {
+      c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+        "error" : "data not found",
+        "message": "data not exist",
+      })
+      return
+    }
+    if data.Role != "Admin" {
+      c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+        "error" : "unauthorized",
+        "message" : "don't have access",
+      })
+      return
+    }
     c.Next()
   }
 }

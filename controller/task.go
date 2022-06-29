@@ -17,7 +17,9 @@ type InputTask struct {
 }
 
 func (db Handlers) GetAllTask(c *gin.Context) {
-	res, err := repository.GetAllTask(db.Connect)
+  userData := c.MustGet("id")
+	userId := uint(userData.(float64))
+	res, err := repository.GetAllTask(db.Connect, userId)
 	var result gin.H
 	if err != nil {
 		result = gin.H{
@@ -39,6 +41,11 @@ func (db Handlers) CreateTask(c *gin.Context) {
 	if err := c.ShouldBindJSON(&task); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 	}
+
+  userData := c.MustGet("id")
+	userId := uint(userData.(float64))
+  task.UserId = userId
+
 	err := repository.CreateTask(task, db.Connect)
 	if err != nil {
 		result = gin.H{
@@ -73,7 +80,9 @@ func (db Handlers) UpdateTask(c *gin.Context) {
 	//task.Description = reqTask.Description
 
 	taskId, _ := strconv.Atoi(c.Param("id"))
-	_, err := repository.UpdateTask(taskId, task, db.Connect)
+  userData := c.MustGet("id")
+	userId := uint(userData.(float64))
+	_, err := repository.UpdateTask(taskId, userId, task, db.Connect)
 	if err != nil {
 		result = gin.H{
 			"message": err,
@@ -114,7 +123,9 @@ func (db Handlers) UpdateStatusTask(c *gin.Context) {
 	//task.Description = reqTask.Description
 
 	taskId, _ := strconv.Atoi(c.Param("id"))
-	_, err := repository.UpdateTask(taskId, task, db.Connect)
+  userData := c.MustGet("id")
+	userId := uint(userData.(float64))
+	_, err := repository.UpdateTask(taskId, userId, task, db.Connect)
 	if err != nil {
 		result = gin.H{
 			"message": err,

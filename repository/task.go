@@ -5,10 +5,10 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetAllTask(db *gorm.DB) ([]models.Task, error) {
+func GetAllTask(db *gorm.DB, id uint) ([]models.Task, error) {
 	var task []models.Task
 
-	res := db.Find(&task)
+	res := db.Where("user_id = ?", id).Find(&task)
 
 	if res.Error != nil {
 		return nil, res.Error
@@ -21,6 +21,18 @@ func GetAllTask(db *gorm.DB) ([]models.Task, error) {
 	}
 }
 
+func GetDetail(db *gorm.DB, ID uint, userID uint) (models.Task, error) {
+	task := models.Task{}
+
+	err := db.Where("id = ? AND user_id = ?", ID, userID).Find(&task).Error
+
+	if err != nil {
+		return task, err
+	}
+
+	return task, nil
+}
+
 func CreateTask(data models.Task, db *gorm.DB) error {
 	err := db.Create(&data).Error
 	if err != nil {
@@ -30,9 +42,9 @@ func CreateTask(data models.Task, db *gorm.DB) error {
 
 }
 
-func UpdateTask(id int, data models.Task, db *gorm.DB) (models.Task, error) {
+func UpdateTask(id int, userID uint, data models.Task, db *gorm.DB) (models.Task, error) {
 	var task models.Task
-	err := db.Model(&task).Where("id = ?", id).Updates(&data).Error
+	err := db.Model(&task).Where("id = ? AND user_id = ?", id, userID).Updates(&data).Error
 	if err != nil {
 		return models.Task{}, err
 	}
