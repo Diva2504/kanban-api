@@ -6,4 +6,5 @@ type Category struct {
   gorm.Model
   Type string
   UserId uint
+  Task  []Task
 }
