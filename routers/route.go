@@ -16,8 +16,8 @@ func RoutesList() *gin.Engine {
 		// get all users data
 		userRoutes.POST("/login", handler.UserLogin)
 		userRoutes.POST("/register", handler.UserRegister)
-		userRoutes.PUT("/update-account")
-		userRoutes.DELETE("/delete-account")
+		userRoutes.PUT("/update-account", middleware.Authentication(), handler.UpdateUser)
+		userRoutes.DELETE("/delete-account", middleware.Authentication(), handler.DeleteUser)
 	}
 	categoryRoutes := r.Group("/categories")
   categoryRoutes.Use(middleware.Authentication(), middleware.AdminAuth())

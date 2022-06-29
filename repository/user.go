@@ -30,3 +30,22 @@ func UserLogin(data *models.User, db *gorm.DB) (models.User, error) {
   return user, nil
 }
 
+func DeleteUser(db *gorm.DB, id uint) error {
+	var user models.User
+
+	err := db.Delete(&user, id).Error
+
+	if err != nil {
+		return err
+	} 
+  return nil
+}
+
+func UpdateUser(db *gorm.DB, id int, data models.User) error {
+	var user models.User
+	err := db.Model(&user).Where("id = ?", id).Updates(&data).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
